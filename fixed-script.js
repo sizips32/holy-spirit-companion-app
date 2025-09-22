@@ -27,6 +27,7 @@ class HolySpiritCompanionApp {
         this.updateDashboard();
         this.showTab('dashboard');
         this.updateCurrentDate();
+        this.setupCacheInvalidation(); // 캐시 무효화 설정
     }
 
     setupEventListeners() {
@@ -648,6 +649,159 @@ class HolySpiritCompanionApp {
                 this.showNotification('초기화 중 문제가 발생했습니다.', 'error');
             }
         }
+    }
+
+    // 캐시 무효화 설정
+    setupCacheInvalidation() {
+        // 페이지 로드 시 버전 체크
+        this.checkAppVersion();
+
+        // 키보드 단축키 설정 (Cmd+Shift+R 또는 Ctrl+Shift+R)
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'R') {
+                e.preventDefault();
+                this.performHardRefresh();
+            }
+        });
+
+        // 더블 탭으로 하드 리프레시 (모바일)
+        let lastTap = 0;
+        document.addEventListener('touchend', (e) => {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 500 && tapLength > 0 && e.touches.length === 0) {
+                // 더블 탭 감지 - 헤더 영역에서만
+                const headerRect = document.querySelector('header').getBoundingClientRect();
+                const touch = e.changedTouches[0];
+                if (touch.clientY <= headerRect.bottom) {
+                    this.performHardRefresh();
+                }
+            }
+            lastTap = currentTime;
+        });
+    }
+
+    // 앱 버전 체크
+    checkAppVersion() {
+        const currentVersion = "2.0.0"; // 버전 업데이트 시 이 값을 변경
+        const storedVersion = localStorage.getItem('app-version');
+
+        if (storedVersion !== currentVersion) {
+            // 새 버전 감지 시 캐시 클리어
+            this.clearAppCache();
+            localStorage.setItem('app-version', currentVersion);
+            this.showNotification(`앱이 버전 ${currentVersion}으로 업데이트되었습니다!`, 'info');
+        }
+    }
+
+    // 하드 리프레시 실행
+    performHardRefresh() {
+        try {
+            // 사용자 확인
+            if (!confirm('앱을 완전히 새로고침하시겠습니까? (캐시가 모두 삭제됩니다)')) {
+                return;
+            }
+
+            // 알림 표시
+            this.showNotification('하드 리프레시를 실행합니다...', 'info');
+
+            // 캐시 클리어
+            this.clearAppCache();
+
+            // 페이지 완전 새로고침 (캐시 무시)
+            setTimeout(() => {
+                window.location.reload(true);
+            }, 1000);
+
+        } catch (error) {
+            console.error('하드 리프레시 중 오류:', error);
+            // 일반 새로고침으로 폴백
+            window.location.reload();
+        }
+    }
+
+    // 앱 캐시 클리어
+    clearAppCache() {
+        try {
+            // 브라우저 저장소는 유지하고 캐시만 클리어
+
+            // Service Worker 캐시 클리어 (있다면)
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => {
+                        caches.delete(name);
+                    });
+                });
+            }
+
+            // 세션 스토리지 클리어
+            sessionStorage.clear();
+
+            // 임시 캐시 키 클리어
+            const tempKeys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && (key.startsWith('temp-') || key.startsWith('cache-'))) {
+                    tempKeys.push(key);
+                }
+            }
+            tempKeys.forEach(key => localStorage.removeItem(key));
+
+            console.log('앱 캐시가 클리어되었습니다.');
+
+        } catch (error) {
+            console.error('캐시 클리어 중 오류:', error);
+        }
+    }
+
+    // 개발자 모드 토글 (숨겨진 기능)
+    enableDeveloperMode() {
+        if (!this.devMode) {
+            this.devMode = true;
+            this.showNotification('개발자 모드가 활성화되었습니다.', 'info');
+
+            // 개발자 도구 추가
+            this.addDeveloperTools();
+        }
+    }
+
+    // 개발자 도구 추가
+    addDeveloperTools() {
+        // 하드 리프레시 버튼 추가
+        const devPanel = document.createElement('div');
+        devPanel.id = 'developer-panel';
+        devPanel.style.cssText = `
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            z-index: 10001;
+            font-size: 12px;
+            display: none;
+        `;
+
+        devPanel.innerHTML = `
+            <div>개발자 도구</div>
+            <button onclick="window.app.performHardRefresh()" style="margin: 5px; padding: 5px;">하드 리프레시</button>
+            <button onclick="window.app.clearAppCache()" style="margin: 5px; padding: 5px;">캐시 클리어</button>
+            <button onclick="console.log(window.app.dataManager.loadData())" style="margin: 5px; padding: 5px;">데이터 로그</button>
+        `;
+
+        document.body.appendChild(devPanel);
+
+        // 개발자 패널 토글 (Cmd+D 또는 Ctrl+D)
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'd' && this.devMode) {
+                e.preventDefault();
+                const panel = document.getElementById('developer-panel');
+                if (panel) {
+                    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+                }
+            }
+        });
     }
 }
 
