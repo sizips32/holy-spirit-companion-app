@@ -45,6 +45,10 @@
                     <i class="fas fa-book"></i>
                     성찰일지
                 </button>
+                <button class="nav-btn" data-tab="calendar">
+                    <i class="fas fa-calendar-alt"></i>
+                    달력
+                </button>
             </nav>
         </div>
     </header>
@@ -120,21 +124,85 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <i class="fas fa-calendar-check"></i>
-                        <h4>연속 실천</h4>
-                        <span class="stat-number" id="streak-days">7</span>
-                        <span class="stat-unit">일</span>
+                        <h4>완료율 (가중치)</h4>
+                        <span class="stat-number" id="completion-rate">0%</span>
                     </div>
                     <div class="stat-card">
                         <i class="fas fa-star"></i>
-                        <h4>이번 달 평가</h4>
-                        <span class="stat-number" id="monthly-score">142</span>
-                        <span class="stat-unit">점</span>
+                        <h4>현재 단계</h4>
+                        <span class="stat-number" id="current-stage-stat">1</span>
+                        <span class="stat-unit">단계</span>
                     </div>
                     <div class="stat-card">
                         <i class="fas fa-chart-line"></i>
-                        <h4>성장률</h4>
-                        <span class="stat-number" id="growth-rate">+12</span>
-                        <span class="stat-unit">%</span>
+                        <h4>총점</h4>
+                        <span class="stat-number" id="total-score-stat">100</span>
+                        <span class="stat-unit">점</span>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-trophy"></i>
+                        <h4>종합점수</h4>
+                        <span class="stat-number" id="composite-score">60</span>
+                        <span class="stat-unit">점</span>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-calendar"></i>
+                        <h4>여정 일수</h4>
+                        <span class="stat-number" id="journey-days">1</span>
+                        <span class="stat-unit">일</span>
+                    </div>
+                </div>
+
+                <!-- 우선순위별 진행률 -->
+                <div class="priority-progress-section">
+                    <h3>우선순위별 진행률</h3>
+                    <div class="priority-progress-item">
+                        <div class="priority-label">🔴 중요</div>
+                        <div class="priority-progress-bar">
+                            <div class="priority-progress-fill critical" id="critical-progress-bar" style="width: 0%"></div>
+                        </div>
+                        <div class="priority-percentage" id="critical-progress">0%</div>
+                    </div>
+                    <div class="priority-progress-item">
+                        <div class="priority-label">🟡 높음</div>
+                        <div class="priority-progress-bar">
+                            <div class="priority-progress-fill high" id="high-progress-bar" style="width: 0%"></div>
+                        </div>
+                        <div class="priority-percentage" id="high-progress">0%</div>
+                    </div>
+                    <div class="priority-progress-item">
+                        <div class="priority-label">🟢 보통</div>
+                        <div class="priority-progress-bar">
+                            <div class="priority-progress-fill medium" id="medium-progress-bar" style="width: 0%"></div>
+                        </div>
+                        <div class="priority-percentage" id="medium-progress">0%</div>
+                    </div>
+                </div>
+
+                <!-- 데이터 관리 패널 -->
+                <div class="data-management-panel">
+                    <h3>데이터 관리</h3>
+                    <div class="management-buttons">
+                        <button class="btn-secondary" onclick="exportData()">
+                            <i class="fas fa-download"></i>
+                            데이터 내보내기
+                        </button>
+                        <button class="btn-secondary" onclick="importData()">
+                            <i class="fas fa-upload"></i>
+                            데이터 가져오기
+                        </button>
+                        <button class="btn-warning reset-button" onclick="window.app.manualReset()">
+                            <i class="fas fa-redo"></i>
+                            오늘 데이터 초기화
+                        </button>
+                        <button class="btn-danger" onclick="resetAllData()">
+                            <i class="fas fa-refresh"></i>
+                            전체 초기화
+                        </button>
+                        <button class="btn-primary" onclick="viewCalendar()">
+                            <i class="fas fa-calendar-alt"></i>
+                            월별 달력 보기
+                        </button>
                     </div>
                 </div>
             </div>
@@ -666,6 +734,158 @@
                 </div>
             </div>
         </section>
+
+        <!-- 달력 탭 -->
+        <section id="calendar" class="tab-content">
+            <div class="container">
+                <div class="calendar-header">
+                    <h2>성령 동행 여정 달력</h2>
+                    <div class="calendar-controls">
+                        <div class="view-toggle">
+                            <button class="toggle-btn active" data-view="month">월별</button>
+                            <button class="toggle-btn" data-view="week">주별</button>
+                        </div>
+                        <div class="detail-toggle">
+                            <button class="toggle-btn active" data-detail="minimal">간단히</button>
+                            <button class="toggle-btn" data-detail="detailed">상세히</button>
+                        </div>
+                        <div class="nav-controls">
+                            <button class="nav-btn" id="prev-period">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <h3 id="current-period">2025년 1월</h3>
+                            <button class="nav-btn" id="next-period">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 단계별 범례 -->
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color stage-0"></div>
+                        <span>1단계: 성령 인식</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color stage-1"></div>
+                        <span>2단계: 성령 순종</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color stage-2"></div>
+                        <span>3단계: 성령 동행</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color stage-3"></div>
+                        <span>4단계: 성령 사역</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color no-data"></div>
+                        <span>데이터 없음</span>
+                    </div>
+                </div>
+
+                <!-- 달력 컨테이너 -->
+                <div class="calendar-container">
+                    <!-- 월별 보기 -->
+                    <div id="month-view" class="calendar-view active">
+                        <div class="calendar-grid">
+                            <div class="weekdays">
+                                <div class="weekday">일</div>
+                                <div class="weekday">월</div>
+                                <div class="weekday">화</div>
+                                <div class="weekday">수</div>
+                                <div class="weekday">목</div>
+                                <div class="weekday">금</div>
+                                <div class="weekday">토</div>
+                            </div>
+                            <div class="calendar-days" id="calendar-days">
+                                <!-- 동적으로 생성됨 -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 주별 보기 -->
+                    <div id="week-view" class="calendar-view">
+                        <div class="week-grid" id="week-grid">
+                            <!-- 동적으로 생성됨 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 월별 통계 -->
+                <div class="monthly-stats">
+                    <h3>이번 달 통계</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <i class="fas fa-calendar-check"></i>
+                            <h4>실천일</h4>
+                            <span class="stat-number" id="monthly-active-days">0</span>
+                            <span class="stat-unit">일</span>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-percentage"></i>
+                            <h4>완료율</h4>
+                            <span class="stat-number" id="monthly-completion">0</span>
+                            <span class="stat-unit">%</span>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-star"></i>
+                            <h4>평균 점수</h4>
+                            <span class="stat-number" id="monthly-avg-score">0</span>
+                            <span class="stat-unit">점</span>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-trophy"></i>
+                            <h4>최고 단계</h4>
+                            <span class="stat-number" id="monthly-max-stage">1</span>
+                            <span class="stat-unit">단계</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 날짜 상세 모달 -->
+            <div id="dateDetailModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="modal-date-title">2025년 1월 15일</h3>
+                        <span class="modal-close">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="date-summary">
+                            <div class="summary-item">
+                                <span class="label">현재 단계:</span>
+                                <span id="modal-stage" class="value">2단계: 성령 순종</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">총점:</span>
+                                <span id="modal-score" class="value">145점</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">완료율:</span>
+                                <span id="modal-completion" class="value">80%</span>
+                            </div>
+                        </div>
+
+                        <div class="checklist-preview" id="modal-checklist">
+                            <!-- 동적으로 생성됨 -->
+                        </div>
+
+                        <div class="modal-actions">
+                            <button class="btn-primary" id="edit-date-btn">
+                                <i class="fas fa-edit"></i>
+                                이 날짜 편집하기
+                            </button>
+                            <button class="btn-danger" id="delete-date-btn">
+                                <i class="fas fa-trash"></i>
+                                데이터 삭제
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- 하단 네비게이션 (모바일) -->
@@ -686,8 +906,14 @@
             <i class="fas fa-book"></i>
             <span>일지</span>
         </button>
+        <button class="bottom-nav-btn" data-tab="calendar">
+            <i class="fas fa-calendar-alt"></i>
+            <span>달력</span>
+        </button>
     </nav>
 
+    <script src="data-structure.js?v=1758541612"></script>
+    <script src="calendar.js?v=1758541612"></script>
     <script src="fixed-script.js?v=1758541612"></script>
 </body>
 </html>

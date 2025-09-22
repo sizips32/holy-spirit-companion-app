@@ -1,18 +1,28 @@
-// 성령과 동행하는 삶 - Fixed JavaScript for HTML Structure
+// 성령과 동행하는 삶 - 개선된 JavaScript with CRUD System
 
 class HolySpiritCompanionApp {
     constructor() {
         this.currentTab = 'dashboard';
         this.stages = ['인식', '순종', '동행', '사역'];
-        this.currentStage = 1; // 0-3 인덱스
-        this.totalScore = 0;
+        this.dataManager = new HolySpiritDataManager();
         this.maxScore = 200;
+
+        // 데이터 매니저에서 현재 상태 가져오기
+        const todayData = this.dataManager.getTodayData();
+        const userData = this.dataManager.loadData().userProfile;
+
+        this.currentStage = userData.currentStage;
+        this.totalScore = todayData.totalScore;
+
+        // 달력 매니저 초기화
+        this.calendarManager = null;
 
         this.initializeApp();
     }
 
     initializeApp() {
         this.setupEventListeners();
+        this.checkDailyReset(); // 일일 초기화 확인
         this.loadStoredData();
         this.updateDashboard();
         this.showTab('dashboard');
@@ -109,6 +119,8 @@ class HolySpiritCompanionApp {
         // 탭별 초기화
         if (tabName === 'assessment') {
             this.updateAssessmentDisplay();
+        } else if (tabName === 'calendar') {
+            this.initializeCalendar();
         }
     }
 
@@ -193,8 +205,20 @@ class HolySpiritCompanionApp {
     }
 
     updateChecklistItem(checkbox) {
+        const itemId = checkbox.id;
+        const isChecked = checkbox.checked;
+
+        // 데이터 매니저를 통해 체크리스트 업데이트
+        this.dataManager.updateChecklist(itemId, isChecked);
+
+        // UI 업데이트
         const listItem = checkbox.closest('.checklist-item');
-        // CSS의 :has() 선택자가 스타일을 자동으로 처리하므로 여기서는 추가 작업 불필요
+        if (listItem) {
+            listItem.classList.toggle('completed', isChecked);
+        }
+
+        // 진행률 업데이트
+        this.updateProgressStats();
     }
 
     updateRatingDisplay(slider) {
@@ -206,43 +230,52 @@ class HolySpiritCompanionApp {
     }
 
     calculateTotalScore() {
-        const sliders = document.querySelectorAll('.rating-slider');
-        let total = 0;
-        sliders.forEach(slider => {
-            total += parseInt(slider.value);
-        });
-        this.totalScore = total;
+        // 카테고리별로 점수 수집 및 업데이트
+        const categories = ['relationship', 'character', 'discernment', 'ministry'];
 
-        // 단계 자동 업데이트 (점수 기반)
-        if (this.totalScore >= 160) {
-            this.currentStage = 3; // 사역
-        } else if (this.totalScore >= 120) {
-            this.currentStage = 2; // 동행
-        } else if (this.totalScore >= 80) {
-            this.currentStage = 1; // 순종
-        } else {
-            this.currentStage = 0; // 인식
-        }
+        categories.forEach(category => {
+            const categorySliders = document.querySelectorAll(`[data-category="${category}"] .rating-slider`);
+            categorySliders.forEach((slider, index) => {
+                this.dataManager.updateAssessment(category, index, parseInt(slider.value));
+            });
+        });
+
+        // 데이터 매니저에서 총점 계산 및 단계 업데이트
+        const todayData = this.dataManager.getTodayData();
+        this.totalScore = todayData.totalScore;
+        this.currentStage = todayData.stage;
 
         this.updateDashboard();
+        this.updateAssessmentDisplay();
     }
 
     updateAssessmentDisplay() {
         // 카테고리별 점수 업데이트
         const categories = ['relationship', 'character', 'discernment', 'ministry'];
+        const todayString = this.dataManager.getTodayString();
 
         categories.forEach(category => {
             const categoryCard = document.querySelector(`[data-category="${category}"]`);
             if (categoryCard) {
-                const categorySliders = categoryCard.querySelectorAll('.rating-slider');
-                let categoryTotal = 0;
-                categorySliders.forEach(slider => {
-                    categoryTotal += parseInt(slider.value);
-                });
+                // 실시간 카테고리 점수 계산
+                const categoryScore = this.dataManager.getCategoryScore(todayString, category);
 
-                const categoryScore = categoryCard.querySelector('.category-score');
-                if (categoryScore) {
-                    categoryScore.textContent = `${categoryTotal}/50`;
+                const categoryScoreElement = categoryCard.querySelector('.category-score');
+                if (categoryScoreElement) {
+                    categoryScoreElement.textContent = `${categoryScore.total}/50`;
+                }
+
+                // 카테고리별 평균 표시 (있다면)
+                const categoryAvgElement = categoryCard.querySelector('.category-average');
+                if (categoryAvgElement) {
+                    categoryAvgElement.textContent = `평균: ${categoryScore.average}점`;
+                }
+
+                // 진행률 바 업데이트 (있다면)
+                const progressBar = categoryCard.querySelector('.category-progress');
+                if (progressBar) {
+                    const progressPercentage = (categoryScore.total / 50) * 100;
+                    progressBar.style.width = `${progressPercentage}%`;
                 }
             }
         });
@@ -251,6 +284,20 @@ class HolySpiritCompanionApp {
         const totalScoreElement = document.querySelector('.total-assessment-score');
         if (totalScoreElement) {
             totalScoreElement.textContent = `${this.totalScore}/200`;
+        }
+
+        // 전체 평균 및 통계 (있다면)
+        const overallAvgElement = document.querySelector('.overall-average');
+        if (overallAvgElement) {
+            const overallAverage = Math.round((this.totalScore / 20) * 10) / 10;
+            overallAvgElement.textContent = `전체 평균: ${overallAverage}점`;
+        }
+
+        // 퍼센트 표시 (있다면)
+        const percentageElement = document.querySelector('.score-percentage');
+        if (percentageElement) {
+            const percentage = Math.round((this.totalScore / 200) * 100);
+            percentageElement.textContent = `${percentage}%`;
         }
     }
 
@@ -268,45 +315,127 @@ class HolySpiritCompanionApp {
     }
 
     saveData() {
-        const data = {
-            currentStage: this.currentStage,
-            totalScore: this.totalScore,
-            checklistStates: this.getChecklistStates(),
-            assessmentScores: this.getAssessmentScores(),
-            lastUpdated: new Date().toISOString()
-        };
+        // 데이터 매니저가 자동으로 저장하므로 별도 저장 불필요
+        // 호환성을 위해 함수 유지
+    }
 
-        localStorage.setItem('holy-spirit-companion-data', JSON.stringify(data));
+    // 새로운 진행률 통계 업데이트 함수 (가중치 반영)
+    updateProgressStats() {
+        const todayData = this.dataManager.getTodayData();
+        const detailedAnalysis = this.dataManager.getTodayDetailedAnalysis();
+
+        // 가중치 적용 체크리스트 진행률
+        const weightedProgress = detailedAnalysis.checklistAnalysis.weighted;
+        const priorityProgress = detailedAnalysis.checklistAnalysis.priority;
+
+        // 기본 통계 업데이트
+        this.updateStatElement('completion-rate', `${Math.round(weightedProgress)}%`);
+        this.updateStatElement('current-stage-stat', this.currentStage + 1);
+        this.updateStatElement('total-score-stat', this.totalScore);
+        this.updateStatElement('journey-days', this.calculateJourneyDays());
+
+        // 종합 점수 표시
+        this.updateStatElement('composite-score', Math.round(detailedAnalysis.compositeScore));
+
+        // 우선순위별 진행률 표시
+        this.updateStatElement('critical-progress', `${Math.round(priorityProgress.critical)}%`);
+        this.updateStatElement('high-progress', `${Math.round(priorityProgress.high)}%`);
+        this.updateStatElement('medium-progress', `${Math.round(priorityProgress.medium)}%`);
+
+        // 진행률 바 업데이트 (가중치 반영)
+        const progressBar = document.getElementById('stage-progress');
+        if (progressBar) {
+            progressBar.style.width = `${weightedProgress}%`;
+        }
+
+        // 단계별 진행률 바 업데이트
+        const criticalBar = document.getElementById('critical-progress-bar');
+        const highBar = document.getElementById('high-progress-bar');
+        const mediumBar = document.getElementById('medium-progress-bar');
+
+        if (criticalBar) criticalBar.style.width = `${priorityProgress.critical}%`;
+        if (highBar) highBar.style.width = `${priorityProgress.high}%`;
+        if (mediumBar) mediumBar.style.width = `${priorityProgress.medium}%`;
+
+        // 체크리스트 항목에 가중치 표시 업데이트
+        this.updateChecklistWeightDisplay();
+    }
+
+    // 체크리스트 항목에 가중치 및 우선순위 표시
+    updateChecklistWeightDisplay() {
+        const stageItems = this.dataManager.getStageChecklists()[this.currentStage].items;
+
+        stageItems.forEach(item => {
+            const checklistElement = document.getElementById(item.id);
+            if (checklistElement) {
+                const container = checklistElement.closest('.checklist-item');
+                if (container) {
+                    // 우선순위 클래스 추가
+                    container.classList.remove('priority-critical', 'priority-high', 'priority-medium');
+                    container.classList.add(`priority-${item.priority}`);
+
+                    // 가중치 표시 요소 추가/업데이트
+                    let weightDisplay = container.querySelector('.weight-display');
+                    if (!weightDisplay) {
+                        weightDisplay = document.createElement('span');
+                        weightDisplay.className = 'weight-display';
+                        container.appendChild(weightDisplay);
+                    }
+                    weightDisplay.textContent = `가중치: ${item.weight}`;
+
+                    // 우선순위 배지 추가/업데이트
+                    let priorityBadge = container.querySelector('.priority-badge');
+                    if (!priorityBadge) {
+                        priorityBadge = document.createElement('span');
+                        priorityBadge.className = 'priority-badge';
+                        container.appendChild(priorityBadge);
+                    }
+
+                    const priorityText = {
+                        'critical': '🔴 중요',
+                        'high': '🟡 높음',
+                        'medium': '🟢 보통'
+                    };
+                    priorityBadge.textContent = priorityText[item.priority];
+                }
+            }
+        });
     }
 
     loadStoredData() {
-        const stored = localStorage.getItem('holy-spirit-companion-data');
-        if (stored) {
-            const data = JSON.parse(stored);
-            this.currentStage = data.currentStage || 0;
-            this.totalScore = data.totalScore || 0;
+        const todayData = this.dataManager.getTodayData();
+        const userData = this.dataManager.loadData().userProfile;
 
-            // 체크리스트 상태 복원
-            if (data.checklistStates) {
-                Object.entries(data.checklistStates).forEach(([id, checked]) => {
-                    const checkbox = document.getElementById(id);
-                    if (checkbox) {
-                        checkbox.checked = checked;
-                    }
-                });
-            }
+        // 현재 상태 복원
+        this.currentStage = userData.currentStage;
+        this.totalScore = todayData.totalScore;
 
-            // 평가 점수 복원
-            if (data.assessmentScores) {
-                Object.entries(data.assessmentScores).forEach(([id, value]) => {
-                    const slider = document.getElementById(id);
-                    if (slider) {
-                        slider.value = value;
-                        this.updateRatingDisplay(slider);
-                    }
-                });
+        // 오늘의 체크리스트 상태 복원
+        const stageChecklists = this.dataManager.getStageChecklists();
+        const currentStageItems = stageChecklists[this.currentStage].items;
+
+        currentStageItems.forEach(item => {
+            const checkbox = document.getElementById(item.id);
+            if (checkbox && todayData.checklist[item.id] !== undefined) {
+                checkbox.checked = todayData.checklist[item.id];
             }
-        }
+        });
+
+        // 평가 점수 복원
+        const categories = ['relationship', 'character', 'discernment', 'ministry'];
+        categories.forEach(category => {
+            const categorySliders = document.querySelectorAll(`[data-category="${category}"] .rating-slider`);
+            categorySliders.forEach((slider, index) => {
+                if (todayData.assessment[category] && todayData.assessment[category][index] !== undefined) {
+                    slider.value = todayData.assessment[category][index];
+                    this.updateRatingDisplay(slider);
+                }
+            });
+        });
+
+        // UI 업데이트
+        this.updateProgressStats();
+        this.updateAssessmentDisplay();
     }
 
     getChecklistStates() {
@@ -327,6 +456,12 @@ class HolySpiritCompanionApp {
             }
         });
         return scores;
+    }
+
+    initializeCalendar() {
+        if (!this.calendarManager) {
+            this.calendarManager = new CalendarManager(this.dataManager);
+        }
     }
 
     showNotification(message, type = 'success') {
@@ -365,6 +500,155 @@ class HolySpiritCompanionApp {
             }, 300);
         }, 3000);
     }
+
+    // 일일 초기화 확인 및 처리
+    checkDailyReset() {
+        const data = this.dataManager.loadData();
+        const settings = data.settings;
+
+        // 자동 초기화가 활성화된 경우에만 실행
+        if (!settings.autoReset) return;
+
+        const today = this.dataManager.getTodayString();
+        const lastResetDate = localStorage.getItem('lastResetDate');
+
+        // 마지막 초기화 날짜와 오늘이 다르면 초기화 실행
+        if (lastResetDate !== today) {
+            this.performDailyReset();
+            localStorage.setItem('lastResetDate', today);
+        }
+    }
+
+    // 일일 초기화 실행
+    performDailyReset() {
+        try {
+            // 오늘 데이터 초기화 (새로운 데이터 생성)
+            const todayData = this.dataManager.getTodayData();
+
+            // 단계별 진급 평가 (어제 데이터 기반)
+            this.evaluateStageProgress();
+
+            // 새로운 날 알림
+            this.showDailyWelcomeMessage();
+
+            // 진급 안내 표시 (필요시)
+            this.showStageProgressInfo();
+
+        } catch (error) {
+            console.error('일일 초기화 중 오류:', error);
+            this.showNotification('일일 초기화 중 문제가 발생했습니다.', 'error');
+        }
+    }
+
+    // 단계별 진급 평가
+    evaluateStageProgress() {
+        const data = this.dataManager.loadData();
+        const userProfile = data.userProfile;
+        const today = this.dataManager.getTodayString();
+
+        // 과거 7일간의 성과 분석
+        const pastWeekData = this.dataManager.getPastDaysData(today, 7);
+
+        if (pastWeekData.length >= 3) { // 최소 3일 데이터 필요
+            const avgComposite = pastWeekData.reduce((sum, day) =>
+                sum + this.dataManager.calculateCompositeScore(day), 0) / pastWeekData.length;
+
+            const avgScore = pastWeekData.reduce((sum, day) =>
+                sum + day.totalScore, 0) / pastWeekData.length;
+
+            const completedDays = pastWeekData.filter(day => day.completed).length;
+            const completionRate = (completedDays / pastWeekData.length) * 100;
+
+            // 단계 진급 조건 확인
+            const currentStage = userProfile.currentStage;
+            const stageNames = ['성령 인식', '성령 순종', '성령 동행', '성령 사역'];
+
+            let shouldPromote = false;
+            let promoteMessage = '';
+
+            if (currentStage < 3) {
+                const thresholds = this.dataManager.getAdaptiveThresholds(today);
+
+                if (currentStage === 0 && avgComposite >= thresholds.obedience && completionRate >= 70) {
+                    shouldPromote = true;
+                    promoteMessage = `🎉 축하합니다! "${stageNames[1]}" 단계로 진급하셨습니다!`;
+                } else if (currentStage === 1 && avgComposite >= thresholds.companionship && completionRate >= 75) {
+                    shouldPromote = true;
+                    promoteMessage = `🎉 축하합니다! "${stageNames[2]}" 단계로 진급하셨습니다!`;
+                } else if (currentStage === 2 && avgComposite >= thresholds.ministry && completionRate >= 80) {
+                    shouldPromote = true;
+                    promoteMessage = `🎉 축하합니다! "${stageNames[3]}" 단계로 진급하셨습니다!`;
+                }
+            }
+
+            if (shouldPromote) {
+                userProfile.currentStage = Math.min(3, currentStage + 1);
+                this.currentStage = userProfile.currentStage;
+                this.dataManager.saveData(data);
+                this.showNotification(promoteMessage, 'success');
+            }
+        }
+    }
+
+    // 일일 환영 메시지 표시
+    showDailyWelcomeMessage() {
+        const stageNames = ['성령 인식', '성령 순종', '성령 동행', '성령 사역'];
+        const stageName = stageNames[this.currentStage];
+
+        const welcomeMessage = `🌅 새로운 하루가 시작되었습니다! 오늘도 "${stageName}" 단계에서 성령님과 동행하세요.`;
+
+        setTimeout(() => {
+            this.showNotification(welcomeMessage, 'info');
+        }, 1000);
+    }
+
+    // 단계별 진행 정보 표시
+    showStageProgressInfo() {
+        const today = this.dataManager.getTodayString();
+        const progressInfo = this.dataManager.getStageProgressInfo(today);
+
+        if (progressInfo && progressInfo.nextStage) {
+            const nextStage = progressInfo.nextStage;
+            const gaps = nextStage.gaps;
+
+            let adviceMessage = '';
+            if (gaps.compositeScore > 10) {
+                adviceMessage = `다음 단계까지 종합점수 ${Math.round(gaps.compositeScore)}점이 더 필요합니다.`;
+            } else if (gaps.checklistRate > 10) {
+                adviceMessage = `체크리스트 완료율을 ${Math.round(gaps.checklistRate)}% 더 높여보세요.`;
+            } else {
+                adviceMessage = `${nextStage.stageName} 단계 진급이 가까워졌습니다! 꾸준히 실천해보세요.`;
+            }
+
+            setTimeout(() => {
+                this.showNotification(adviceMessage, 'info');
+            }, 3000);
+        }
+    }
+
+    // 수동 초기화 실행 (버튼 클릭 시)
+    manualReset() {
+        if (confirm('오늘의 데이터를 초기화하시겠습니까? 현재 입력된 모든 정보가 기본값으로 돌아갑니다.')) {
+            try {
+                // 오늘 데이터만 삭제하고 새로 생성
+                const today = this.dataManager.getTodayString();
+                this.dataManager.deleteDayData(today);
+
+                // 새로운 오늘 데이터 생성
+                const newTodayData = this.dataManager.getTodayData();
+
+                // UI 전체 새로고침
+                this.loadStoredData();
+                this.updateDashboard();
+                this.updateProgressStats();
+
+                this.showNotification('오늘의 데이터가 초기화되었습니다.', 'success');
+            } catch (error) {
+                console.error('수동 초기화 중 오류:', error);
+                this.showNotification('초기화 중 문제가 발생했습니다.', 'error');
+            }
+        }
+    }
 }
 
 // 전역 함수들 (HTML의 onclick에서 사용)
@@ -382,8 +666,55 @@ function closeModal() {
 
 function saveAssessment() {
     if (window.app) {
-        window.app.saveData();
+        window.app.calculateTotalScore();
         window.app.showNotification('평가 결과가 저장되었습니다.');
+    }
+}
+
+// CRUD 관련 전역 함수들
+function exportData() {
+    if (window.app) {
+        window.app.dataManager.exportData();
+        window.app.showNotification('데이터를 성공적으로 내보냈습니다.');
+    }
+}
+
+function importData() {
+    if (window.app) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const result = window.app.dataManager.importData(e.target.result);
+                    if (result) {
+                        window.app.showNotification('데이터를 성공적으로 가져왔습니다.');
+                        window.location.reload(); // 페이지 새로고침
+                    }
+                };
+                reader.readAsText(file);
+            }
+        };
+        input.click();
+    }
+}
+
+function resetAllData() {
+    if (window.app) {
+        const result = window.app.dataManager.resetAllData();
+        if (result) {
+            window.app.showNotification('모든 데이터가 초기화되었습니다.');
+            window.location.reload(); // 페이지 새로고침
+        }
+    }
+}
+
+function viewCalendar() {
+    if (window.app) {
+        window.app.showTab('calendar');
     }
 }
 
