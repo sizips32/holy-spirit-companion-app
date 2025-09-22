@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>성령과 동행하는 삶</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- 캐시 방지 메타 태그 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="stylesheet" href="styles.css?v=1758541612">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366F1">
+    <meta name="description" content="성령과 함께하는 영적 성장 여정을 기록하고 관리하는 웹 애플리케이션">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="성령동행">
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-dove"></i>
+                <h1>성령 동행</h1>
+            </div>
+            <nav class="nav">
+                <button class="nav-btn active" data-tab="dashboard">
+                    <i class="fas fa-home"></i>
+                    대시보드
+                </button>
+                <button class="nav-btn" data-tab="assessment">
+                    <i class="fas fa-chart-line"></i>
+                    자가진단
+                </button>
+                <button class="nav-btn" data-tab="practice">
+                    <i class="fas fa-pray"></i>
+                    실천가이드
+                </button>
+                <button class="nav-btn" data-tab="journal">
+                    <i class="fas fa-book"></i>
+                    성찰일지
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="main">
+        <!-- 대시보드 탭 -->
+        <section id="dashboard" class="tab-content active">
+            <div class="container">
+                <div class="welcome-section">
+                    <h2>오늘도 성령님과 함께 🕊️</h2>
+                    <p id="current-date"></p>
+                </div>
+
+                <!-- 현재 단계 표시 -->
+                <div class="current-stage-card">
+                    <div class="stage-header">
+                        <h3>현재 성령 동행 단계</h3>
+                        <span class="stage-badge" id="current-stage">2단계: 성령 순종</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="stage-progress" style="width: 65%"></div>
+                    </div>
+                    <p class="stage-description" id="stage-description">
+                        성령의 지적에 즉시 순종하고 회개의 깊이가 증가하는 단계입니다.
+                    </p>
+                </div>
+
+                <!-- 오늘의 실천 체크리스트 -->
+                <div class="daily-checklist">
+                    <h3>오늘의 성령 동행 체크리스트</h3>
+                    <div class="checklist-grid">
+                        <label class="checklist-item">
+                            <input type="checkbox" id="morning-prayer">
+                            <span class="checkmark"></span>
+                            아침에 성령을 구했나요?
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" id="bible-reading">
+                            <span class="checkmark"></span>
+                            성령의 인도로 말씀을 읽었나요?
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" id="conscience-listening">
+                            <span class="checkmark"></span>
+                            양심의 음성에 귀 기울였나요?
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" id="obedience">
+                            <span class="checkmark"></span>
+                            성령의 지적에 순종했나요?
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" id="self-denial">
+                            <span class="checkmark"></span>
+                            자아를 내려놓았나요?
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" id="fruits">
+                            <span class="checkmark"></span>
+                            성령의 열매가 드러났나요?
+                        </label>
+                    </div>
+                    <div class="checklist-summary">
+                        <span id="completed-count">0</span> / 6 완료
+                        <div class="completion-bar">
+                            <div class="completion-fill" id="completion-fill"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 성장 통계 -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-check"></i>
+                        <h4>연속 실천</h4>
+                        <span class="stat-number" id="streak-days">7</span>
+                        <span class="stat-unit">일</span>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-star"></i>
+                        <h4>이번 달 평가</h4>
+                        <span class="stat-number" id="monthly-score">142</span>
+                        <span class="stat-unit">점</span>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-chart-line"></i>
+                        <h4>성장률</h4>
+                        <span class="stat-number" id="growth-rate">+12</span>
+                        <span class="stat-unit">%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 자가진단 탭 -->
+        <section id="assessment" class="tab-content">
+            <div class="container">
+                <div class="assessment-header">
+                    <h2>성령 동행 자가진단</h2>
+                    <p>정확한 자가진단을 통해 현재 영적 상태를 점검해보세요.</p>
+                </div>
+
+                <div class="assessment-categories">
+                    <div class="category-card" data-category="relationship">
+                        <div class="category-header">
+                            <i class="fas fa-heart"></i>
+                            <h3>A. 성령과의 관계</h3>
+                            <span class="category-score">42/50</span>
+                        </div>
+                        <div class="category-questions">
+                            <div class="question-item">
+                                <label>성령을 매일 구하고 의존하고 있는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="8" class="rating-slider" data-question="rel1">
+                                    <span class="rating-value">8점</span>
+                                </div>
+                            </div>
+                            <div class="question-item">
+                                <label>양심을 통한 성령의 음성을 듣고 있는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="7" class="rating-slider" data-question="rel2">
+                                    <span class="rating-value">7점</span>
+                                </div>
+                            </div>
+                            <div class="question-item">
+                                <label>성령의 지적에 즉시 순종하고 있는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="9" class="rating-slider" data-question="rel3">
+                                    <span class="rating-value">9점</span>
+                                </div>
+                            </div>
+                            <div class="question-item">
+                                <label>성령과의 교제에서 기쁨을 느끼는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="8" class="rating-slider" data-question="rel4">
+                                    <span class="rating-value">8점</span>
+                                </div>
+                            </div>
+                            <div class="question-item">
+                                <label>성령의 임재를 일상에서 의식하고 있는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="10" class="rating-slider" data-question="rel5">
+                                    <span class="rating-value">10점</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="category-card" data-category="character">
+                        <div class="category-header">
+                            <i class="fas fa-seedling"></i>
+                            <h3>B. 성품과 열매</h3>
+                            <span class="category-score">38/50</span>
+                        </div>
+                        <div class="category-questions">
+                            <div class="question-item">
+                                <label>사랑이 이전보다 증가했는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="8" class="rating-slider" data-question="char1">
+                                    <span class="rating-value">8점</span>
+                                </div>
+                            </div>
+                            <div class="question-item">
+                                <label>기쁨과 평안이 마음에 있는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="7" class="rating-slider" data-question="char2">
+                                    <span class="rating-value">7점</span>
+                                </div>
+                            </div>
+                            <div class="question-item">
+                                <label>인내와 오래참음이 늘어났는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="6" class="rating-slider" data-question="char3">
+                                    <span class="rating-value">6점</span>
+                                </div>
+                            </div>
+                            <div class="question-item">
+                                <label>자비와 양선을 실천하고 있는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="8" class="rating-slider" data-question="char4">
+                                    <span class="rating-value">8점</span>
+                                </div>
+                            </div>
+                            <div class="question-item">
+                                <label>온유와 절제를 보이고 있는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="9" class="rating-slider" data-question="char5">
+                                    <span class="rating-value">9점</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="category-card" data-category="discernment">
+                        <div class="category-header">
+                            <i class="fas fa-eye"></i>
+                            <h3>C. 영적 분별과 성장</h3>
+                            <span class="category-score">35/50</span>
+                        </div>
+                        <div class="category-questions">
+                            <div class="question-item">
+                                <label>성령의 음성과 다른 음성을 구분할 수 있는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="7" class="rating-slider" data-question="disc1">
+                                    <span class="rating-value">7점</span>
+                                </div>
+                            </div>
+                            <div class="question-item">
+                                <label>성경을 읽을 때 성령의 인도를 받고 있는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="8" class="rating-slider" data-question="disc2">
+                                    <span class="rating-value">8점</span>
+                                </div>
+                            </div>
+                            <div class="question-item">
+                                <label>기도 생활에서 성장을 경험하고 있는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="6" class="rating-slider" data-question="disc3">
+                                    <span class="rating-value">6점</span>
+                                </div>
+                            </div>
+                            <div class="question-item">
+                                <label>영적 전쟁에서 승리하고 있는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="7" class="rating-slider" data-question="disc4">
+                                    <span class="rating-value">7점</span>
+                                </div>
+                            </div>
+                            <div class="question-item">
+                                <label>자아를 죽이고 그리스도를 나타내고 있는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="7" class="rating-slider" data-question="disc5">
+                                    <span class="rating-value">7점</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="category-card" data-category="ministry">
+                        <div class="category-header">
+                            <i class="fas fa-hands-helping"></i>
+                            <h3>D. 사역과 영향력</h3>
+                            <span class="category-score">27/50</span>
+                        </div>
+                        <div class="category-questions">
+                            <div class="question-item">
+                                <label>성령의 은사를 발견하고 활용하고 있는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="5" class="rating-slider" data-question="min1">
+                                    <span class="rating-value">5점</span>
+                                </div>
+                            </div>
+                            <div class="question-item">
+                                <label>다른 사람들에게 긍정적 영향을 주고 있는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="6" class="rating-slider" data-question="min2">
+                                    <span class="rating-value">6점</span>
+                                </div>
+                            </div>
+                            <div class="question-item">
+                                <label>자연스럽게 복음을 나누고 있는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="4" class="rating-slider" data-question="min3">
+                                    <span class="rating-value">4점</span>
+                                </div>
+                            </div>
+                            <div class="question-item">
+                                <label>교회 공동체 건설에 기여하고 있는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="6" class="rating-slider" data-question="min4">
+                                    <span class="rating-value">6점</span>
+                                </div>
+                            </div>
+                            <div class="question-item">
+                                <label>마지막 시대 사명을 감당하고 있는가?</label>
+                                <div class="rating-scale">
+                                    <input type="range" min="1" max="10" value="6" class="rating-slider" data-question="min5">
+                                    <span class="rating-value">6점</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="assessment-result">
+                    <div class="total-score">
+                        <h3>총점: <span id="total-score">142</span>/200점</h3>
+                        <p class="stage-result">현재 단계: <strong>성령 순종 단계</strong></p>
+                    </div>
+                    <div class="assessment-feedback">
+                        <h4>개선 권장 사항</h4>
+                        <ul id="feedback-list">
+                            <li>사역과 영향력 영역에서 성장이 필요합니다. 성령의 은사 발견에 집중해보세요.</li>
+                            <li>복음 전파에 대한 자연스러운 접근을 위해 기도하고 준비하세요.</li>
+                            <li>기도 생활의 깊이를 더하여 성령과의 교제를 강화하세요.</li>
+                        </ul>
+                    </div>
+                    <button class="btn-primary" onclick="saveAssessment()">진단 결과 저장</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 실천가이드 탭 -->
+        <section id="practice" class="tab-content">
+            <div class="container">
+                <div class="practice-header">
+                    <h2>성령 동행 실천 가이드</h2>
+                    <p>단계별 맞춤 실천 방법을 제공합니다.</p>
+                </div>
+
+                <div class="practice-categories">
+                    <div class="practice-card">
+                        <div class="practice-icon">
+                            <i class="fas fa-sun"></i>
+                        </div>
+                        <h3>아침 성령 구함</h3>
+                        <p>하루를 시작하며 성령님께 의탁하는 방법</p>
+                        <div class="practice-steps">
+                            <div class="step">
+                                <span class="step-number">1</span>
+                                <p>기상 즉시 "성령님, 오늘 하루를 맡겨드립니다"</p>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">2</span>
+                                <p>15분간 성령을 구하고 하루를 위탁하는 기도</p>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">3</span>
+                                <p>성령의 인도를 구하며 말씀 묵상</p>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">4</span>
+                                <p>하루 일정에서 성령의 인도를 구하며 계획</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="practice-card">
+                        <div class="practice-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <h3>성령 중심 성경읽기</h3>
+                        <p>성령의 인도로 말씀을 받는 5단계 과정</p>
+                        <div class="practice-steps">
+                            <div class="step">
+                                <span class="step-number">1</span>
+                                <p>준비: 성경 펼치기 전 성령께 굴복하는 기도</p>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">2</span>
+                                <p>겸손: 개인적 고집과 선입견을 내려놓음</p>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">3</span>
+                                <p>인도 요청: "성령님, 말씀으로 가르쳐 주세요"</p>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">4</span>
+                                <p>경청: 마음에 떠오르는 감동에 주의 기울임</p>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">5</span>
+                                <p>적용: 받은 감동을 일상에 적용할 계획 수립</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="practice-card">
+                        <div class="practice-icon">
+                            <i class="fas fa-ear-listen"></i>
+                        </div>
+                        <h3>양심의 음성 듣기</h3>
+                        <p>성령이 양심을 통해 주시는 음성을 분별하는 방법</p>
+                        <div class="practice-steps">
+                            <div class="step">
+                                <span class="step-number">1</span>
+                                <p>조용한 시간 확보하여 내면의 음성에 집중</p>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">2</span>
+                                <p>방해 요소 제거하고 마음을 하나님께 집중</p>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">3</span>
+                                <p>"성령님이 무엇을 말씀하시는지" 경청</p>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">4</span>
+                                <p>받은 감동을 성경 말씀으로 검증</p>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">5</span>
+                                <p>성령의 지적에 즉시 순종하고 행동</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="practice-card">
+                        <div class="practice-icon">
+                            <i class="fas fa-heart-broken"></i>
+                        </div>
+                        <h3>자아 포기 실천</h3>
+                        <p>성령께 굴복하며 자아를 내려놓는 일상 실천법</p>
+                        <div class="practice-steps">
+                            <div class="step">
+                                <span class="step-number">1</span>
+                                <p>아침: "내 뜻이 아닌 성령님의 뜻을 따르겠습니다"</p>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">2</span>
+                                <p>결정 순간: "성령님, 어떻게 해야 할까요?"</p>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">3</span>
+                                <p>갈등 시: "혼자 할 수 없습니다. 도와주세요"</p>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">4</span>
+                                <p>저녁: 자아가 드러난 부분들을 고백하고 회개</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="emergency-guide">
+                    <h3>🚨 영적 위기 상황 대처법</h3>
+                    <div class="crisis-tabs">
+                        <button class="crisis-tab active" data-crisis="dryness">영적 침체기</button>
+                        <button class="crisis-tab" data-crisis="failure">반복적 실패</button>
+                        <button class="crisis-tab" data-crisis="pride">영적 교만</button>
+                    </div>
+
+                    <div class="crisis-content active" id="dryness">
+                        <h4>영적 침체기 (Spiritual Dryness)</h4>
+                        <div class="crisis-solutions">
+                            <div class="solution">
+                                <strong>1. 침체기도 하나님의 허용임을 인정</strong>
+                                <p>모든 신앙인이 경험하는 자연스러운 과정입니다.</p>
+                            </div>
+                            <div class="solution">
+                                <strong>2. 감정보다 믿음으로 지속</strong>
+                                <p>기분에 의존하지 말고 하나님의 약속을 의지하세요.</p>
+                            </div>
+                            <div class="solution">
+                                <strong>3. 기본적 영적 수행 유지</strong>
+                                <p>기도, 성경읽기, 예배 참석을 계속 유지하세요.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="crisis-content" id="failure">
+                        <h4>죄와의 반복적 실패</h4>
+                        <div class="crisis-solutions">
+                            <div class="solution">
+                                <strong>1. 실패도 성장 과정의 일부임을 인정</strong>
+                                <p>완벽함보다는 성장 방향에 집중하세요.</p>
+                            </div>
+                            <div class="solution">
+                                <strong>2. 성령의 능력에 더욱 의존</strong>
+                                <p>내 의지력보다 성령의 능력을 신뢰하세요.</p>
+                            </div>
+                            <div class="solution">
+                                <strong>3. 죄의 근본 원인 분석</strong>
+                                <p>언제, 어떤 상황에서 넘어지는지 파악하고 대책을 세우세요.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="crisis-content" id="pride">
+                        <h4>영적 교만의 유혹</h4>
+                        <div class="crisis-solutions">
+                            <div class="solution">
+                                <strong>1. 모든 좋은 것이 하나님의 은혜임을 인정</strong>
+                                <p>자신의 공로가 아니라 하나님의 은혜임을 기억하세요.</p>
+                            </div>
+                            <div class="solution">
+                                <strong>2. 자신의 연약함을 솔직히 고백</strong>
+                                <p>여전히 부족한 부분들을 겸손히 인정하세요.</p>
+                            </div>
+                            <div class="solution">
+                                <strong>3. 섬김의 자세로 은사 나누기</strong>
+                                <p>받은 은혜를 자랑이 아닌 섬김의 도구로 사용하세요.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 성찰일지 탭 -->
+        <section id="journal" class="tab-content">
+            <div class="container">
+                <div class="journal-header">
+                    <h2>성령 동행 성찰 일지</h2>
+                    <button class="btn-primary" onclick="openNewEntry()">
+                        <i class="fas fa-plus"></i> 새 일지 작성
+                    </button>
+                </div>
+
+                <div class="journal-entries">
+                    <div class="journal-entry">
+                        <div class="entry-header">
+                            <h3>2025년 9월 22일 (일)</h3>
+                            <span class="entry-mood">😊 평안함</span>
+                        </div>
+                        <div class="entry-content">
+                            <div class="entry-section">
+                                <h4>오늘 성령과의 특별한 경험</h4>
+                                <p>아침 기도 시간에 성령님의 위로하심을 깊이 경험했습니다. 최근 어려운 상황에서 평안을 주셨습니다.</p>
+                            </div>
+                            <div class="entry-section">
+                                <h4>성령의 지적을 받았던 순간</h4>
+                                <p>동료와의 대화에서 조급해하는 마음을 성령님이 지적해주셨습니다.</p>
+                            </div>
+                            <div class="entry-section">
+                                <h4>순종한 경험과 결과</h4>
+                                <p>즉시 마음을 가라앉히고 사랑으로 대화했더니 관계가 더 좋아졌습니다.</p>
+                            </div>
+                            <div class="entry-section">
+                                <h4>내일을 위한 다짐</h4>
+                                <p>더욱 인내하는 마음으로 사람들을 대하겠습니다.</p>
+                            </div>
+                        </div>
+                        <div class="entry-tags">
+                            <span class="tag">평안</span>
+                            <span class="tag">인내</span>
+                            <span class="tag">사랑</span>
+                        </div>
+                    </div>
+
+                    <div class="journal-entry">
+                        <div class="entry-header">
+                            <h3>2025년 9월 21일 (토)</h3>
+                            <span class="entry-mood">😔 반성</span>
+                        </div>
+                        <div class="entry-content">
+                            <div class="entry-section">
+                                <h4>오늘 성령과의 특별한 경험</h4>
+                                <p>성경 읽기 시간에 갈라디아서 5장을 통해 성령의 열매에 대해 깊이 묵상했습니다.</p>
+                            </div>
+                            <div class="entry-section">
+                                <h4>순종하지 못한 부분</h4>
+                                <p>화가 났을 때 즉시 기도하라는 성령님의 지적을 무시하고 감정에 휩쓸렸습니다.</p>
+                            </div>
+                            <div class="entry-section">
+                                <h4>회개와 다짐</h4>
+                                <p>진심으로 회개하고 앞으로는 감정 조절에 더욱 성령님께 의존하겠습니다.</p>
+                            </div>
+                        </div>
+                        <div class="entry-tags">
+                            <span class="tag">회개</span>
+                            <span class="tag">감정조절</span>
+                            <span class="tag">의존</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 새 일지 작성 모달 -->
+                <div id="journalModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>성령 동행 일지 작성</h3>
+                            <span class="modal-close">&times;</span>
+                        </div>
+                        <form id="journalForm">
+                            <div class="form-group">
+                                <label>오늘 기분</label>
+                                <div class="mood-selector">
+                                    <button type="button" class="mood-btn" data-mood="😊">😊</button>
+                                    <button type="button" class="mood-btn" data-mood="😌">😌</button>
+                                    <button type="button" class="mood-btn" data-mood="😔">😔</button>
+                                    <button type="button" class="mood-btn" data-mood="😓">😓</button>
+                                    <button type="button" class="mood-btn" data-mood="😠">😠</button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="holyExperience">오늘 성령과의 특별한 경험</label>
+                                <textarea id="holyExperience" rows="3" placeholder="성령님과 함께한 특별한 순간이 있었다면 기록해보세요..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="conviction">성령의 지적을 받았던 순간</label>
+                                <textarea id="conviction" rows="3" placeholder="성령님이 지적해주신 부분이 있다면 솔직히 기록해보세요..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="obedience">순종한 경험과 결과</label>
+                                <textarea id="obedience" rows="3" placeholder="순종했을 때의 경험과 그 결과를 나눠보세요..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="disobedience">순종하지 못한 부분</label>
+                                <textarea id="disobedience" rows="3" placeholder="아쉬웠던 부분이나 실패한 경험을 솔직히 나눠보세요..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="fruits">성령의 열매가 나타난 순간</label>
+                                <textarea id="fruits" rows="3" placeholder="사랑, 기쁨, 화평 등 성령의 열매를 경험한 순간들..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tomorrow">내일을 위한 다짐</label>
+                                <textarea id="tomorrow" rows="2" placeholder="내일 더 성령님과 가까이 동행하기 위한 다짐..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tags">태그 (쉼표로 구분)</label>
+                                <input type="text" id="tags" placeholder="예: 기도, 순종, 평안, 사랑">
+                            </div>
+
+                            <div class="modal-actions">
+                                <button type="button" class="btn-secondary" onclick="closeModal()">취소</button>
+                                <button type="submit" class="btn-primary">저장</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 하단 네비게이션 (모바일) -->
+    <nav class="bottom-nav">
+        <button class="bottom-nav-btn active" data-tab="dashboard">
+            <i class="fas fa-home"></i>
+            <span>홈</span>
+        </button>
+        <button class="bottom-nav-btn" data-tab="assessment">
+            <i class="fas fa-chart-line"></i>
+            <span>진단</span>
+        </button>
+        <button class="bottom-nav-btn" data-tab="practice">
+            <i class="fas fa-pray"></i>
+            <span>실천</span>
+        </button>
+        <button class="bottom-nav-btn" data-tab="journal">
+            <i class="fas fa-book"></i>
+            <span>일지</span>
+        </button>
+    </nav>
+
+    <script src="fixed-script.js?v=1758541612"></script>
+</body>
+</html>

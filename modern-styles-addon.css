@@ -1,0 +1,406 @@
+/* 현대적 UI/UX 추가 스타일 - Modern Design Enhancements */
+
+/* 글로우 효과 및 마이크로 인터랙션 */
+.glow-effect {
+  position: relative;
+}
+
+.glow-effect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit;
+  border-radius: inherit;
+  filter: blur(20px);
+  opacity: 0;
+  z-index: -1;
+  transition: var(--transition);
+}
+
+.glow-effect:hover::after {
+  opacity: 0.3;
+}
+
+/* 플로팅 액션 버튼 */
+.fab {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height) + var(--spacing-6));
+  right: var(--spacing-6);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--primary-gradient);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-xl);
+  transition: var(--transition-spring);
+  z-index: 90;
+}
+
+.fab:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: var(--shadow-colored);
+}
+
+.fab:active {
+  transform: scale(0.95);
+}
+
+/* 모달 향상 */
+.modal-backdrop {
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+}
+
+.modal-content {
+  background: var(--surface);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 스켈레톤 로딩 */
+.skeleton {
+  background: linear-gradient(90deg, var(--secondary-color) 25%, transparent 50%, var(--secondary-color) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* 펄스 효과 */
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* 현대적 알림 토스트 */
+.toast {
+  position: fixed;
+  top: calc(var(--header-height) + var(--spacing-4));
+  right: var(--spacing-4);
+  background: var(--surface);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-4) var(--spacing-6);
+  min-width: 300px;
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  transform: translateX(400px);
+  transition: var(--transition-spring);
+}
+
+.toast.show {
+  transform: translateX(0);
+}
+
+.toast.success {
+  border-left: 4px solid var(--success-color);
+}
+
+.toast.error {
+  border-left: 4px solid var(--danger-color);
+}
+
+.toast.warning {
+  border-left: 4px solid var(--warning-color);
+}
+
+/* 인터랙티브 카드 호버 효과 */
+.interactive-card {
+  transition: var(--transition-spring);
+  cursor: pointer;
+}
+
+.interactive-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--shadow-xl);
+}
+
+.interactive-card:active {
+  transform: translateY(-4px) scale(1.01);
+}
+
+/* 그라데이션 텍스트 */
+.gradient-text {
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 반짝이는 효과 */
+.sparkle {
+  position: relative;
+  overflow: hidden;
+}
+
+.sparkle::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px);
+  background-size: 20px 20px;
+  animation: sparkle-move 3s linear infinite;
+  opacity: 0;
+}
+
+.sparkle:hover::before {
+  opacity: 1;
+}
+
+@keyframes sparkle-move {
+  0% { transform: translateX(-50px) translateY(-50px); }
+  100% { transform: translateX(50px) translateY(50px); }
+}
+
+/* 높은 대비 모드 지원 */
+@media (prefers-contrast: high) {
+  :root {
+    --border-color: #000000;
+    --text-secondary: #000000;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* 모션 감소 모드 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .sparkle::before,
+  .shine::after,
+  .pulse {
+    animation: none !important;
+  }
+}
+
+/* 포커스 표시 향상 */
+*:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-sm);
+}
+
+/* 로딩 스피너 */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--secondary-color);
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: var(--spacing-4) auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 현대적 입력 필드 개선 */
+.modern-input {
+  position: relative;
+}
+
+.modern-input input,
+.modern-input textarea {
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-4) var(--spacing-4) var(--spacing-4) var(--spacing-12);
+  background: var(--surface);
+  transition: var(--transition);
+  width: 100%;
+}
+
+.modern-input input:focus,
+.modern-input textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+  outline: none;
+}
+
+.modern-input .input-icon {
+  position: absolute;
+  left: var(--spacing-4);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  pointer-events: none;
+}
+
+/* 현대적 선택 박스 */
+.modern-select {
+  position: relative;
+}
+
+.modern-select select {
+  appearance: none;
+  background: var(--surface);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-4);
+  width: 100%;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.modern-select::after {
+  content: '▼';
+  position: absolute;
+  right: var(--spacing-4);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--text-secondary);
+}
+
+.modern-select select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+  outline: none;
+}
+
+/* 현대적 체크박스 */
+.modern-checkbox {
+  position: relative;
+  display: inline-block;
+}
+
+.modern-checkbox input[type="checkbox"] {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+
+.modern-checkbox input[type="checkbox"]:checked {
+  background: var(--primary-gradient);
+  border-color: var(--primary-color);
+}
+
+.modern-checkbox input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* 현대적 라디오 버튼 */
+.modern-radio {
+  position: relative;
+  display: inline-block;
+}
+
+.modern-radio input[type="radio"] {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  background: var(--surface);
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+
+.modern-radio input[type="radio"]:checked {
+  border-color: var(--primary-color);
+  background: var(--surface);
+}
+
+.modern-radio input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  background: var(--primary-gradient);
+  border-radius: 50%;
+}
+
+/* 태블릿 최적화 */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .container {
+    padding: 0 var(--spacing-6);
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .card {
+    padding: var(--spacing-6);
+  }
+}
+
+/* 대형 화면 최적화 */
+@media (min-width: 1440px) {
+  .container {
+    max-width: 1400px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .card {
+    padding: var(--spacing-10);
+  }
+}
+
+/* 다크 모드 개선 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary-color: #8B5CF6;
+    --primary-light: #A78BFA;
+    --accent-color: #06B6D4;
+    --text-primary: #F8FAFC;
+    --text-secondary: #CBD5E1;
+    --text-light: #94A3B8;
+    --background: #0F172A;
+    --surface: #1E293B;
+    --secondary-color: #334155;
+    --border-color: #475569;
+    --divider-color: #334155;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+  }
+
+  .stage-display {
+    background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
+  }
+}
